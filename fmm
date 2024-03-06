@@ -1,0 +1,102 @@
+#include "fmm.h"
+
+//// Slow fmm :) (improved with code movement)
+void fmm(int n, int* m1, int* m2, int* result) {
+    int* col = malloc(n*sizeof (int));
+    int sum = 0;
+
+    for (int j = 0; j < n; j++) {
+        for (int k = 0; k < n; k++) {
+            col[k] = m2[k*n +j];
+        }
+        for (int i = 0; i < n; i++) {
+            int ni = n*i;
+            for (int k = 0; k < n; k++) {
+                sum += m1[ni + k] * col[k];  // result[i][j] += m1[i][k] * m2[k][j]
+            }
+            result[ni +j] = sum;
+            sum = 0;
+        }
+    }
+}
+
+// unroll 8 fmm
+//void fmm(int n, int* m1, int* m2, int* result) {
+//    for (int i = 0; i < n; i++) {
+//        for (int j = 0; j < n; j++) {
+//            result[i * n + j] = 0;  // result[i][j] = 0
+//
+//            // Unroll the innermost loop to perform 8 additions
+//            for (int k = 0; k < n; k += 8) {
+//                result[i * n + j] += m1[i * n + k] * m2[k * n + j];     // result[i][j] += m1[i][k] * m2[k][j]
+//                result[i * n + j] += m1[i * n + k + 1] * m2[(k + 1) * n + j];
+//                result[i * n + j] += m1[i * n + k + 2] * m2[(k + 2) * n + j];
+//                result[i * n + j] += m1[i * n + k + 3] * m2[(k + 3) * n + j];
+//                result[i * n + j] += m1[i * n + k + 4] * m2[(k + 4) * n + j];
+//                result[i * n + j] += m1[i * n + k + 5] * m2[(k + 5) * n + j];
+//                result[i * n + j] += m1[i * n + k + 6] * m2[(k + 6) * n + j];
+//                result[i * n + j] += m1[i * n + k + 7] * m2[(k + 7) * n + j];
+//            }
+//        }
+//    }
+//}
+
+//unroll 8 inc pointers
+//void fmm(int n, int* m1, int* m2, int* result) {
+//    for (int i = 0; i < n; i++) {
+//        for (int j = 0; j < n; j++) {
+//            result[i * n + j] = 0;  // result[i][j] = 0
+//
+//            int* m1_ptr = &m1[i * n];
+//            int* m2_ptr = &m2[j];
+//            int* result_ptr = &result[i * n + j];
+//
+//            // Unroll the innermost loop with pointer incrementation
+//            for (int k = 0; k < n; k += 8) {
+//                *result_ptr += (*m1_ptr) * (*m2_ptr);
+//                *(result_ptr + 1) += (*(m1_ptr + 1)) * (*(m2_ptr + n));
+//                *(result_ptr + 2) += (*(m1_ptr + 2)) * (*(m2_ptr + 2 * n));
+//                *(result_ptr + 3) += (*(m1_ptr + 3)) * (*(m2_ptr + 3 * n));
+//                *(result_ptr + 4) += (*(m1_ptr + 4)) * (*(m2_ptr + 4 * n));
+//                *(result_ptr + 5) += (*(m1_ptr + 5)) * (*(m2_ptr + 5 * n));
+//                *(result_ptr + 6) += (*(m1_ptr + 6)) * (*(m2_ptr + 6 * n));
+//                *(result_ptr + 7) += (*(m1_ptr + 7)) * (*(m2_ptr + 7 * n));
+//
+//                // Move the pointers
+//                m1_ptr += 8;
+//                m2_ptr += 8 * n;
+//                result_ptr += 8;
+//            }
+//        }
+//    }
+//}
+
+//unroll 8 inc corrected
+//void fmm(int n, int* m1, int* m2, int* result) {
+//    for (int i = 0; i < n; i++) {
+//        for (int j = 0; j < n; j++) {
+//            int* result_ptr = &result[i * n + j];
+//            *result_ptr = 0;  // result[i][j] = 0
+//
+//            int* m1_ptr = &m1[i * n];
+//            int* m2_ptr = &m2[j];
+//
+//            // Unroll the innermost loop with pointer incrementation
+//            for (int k = 0; k < n - 8; k += 8) {
+//                *result_ptr += (*m1_ptr) * (*m2_ptr);
+//                *(result_ptr + 1) += (*(m1_ptr + 1)) * (*(m2_ptr + n));
+//                *(result_ptr + 2) += (*(m1_ptr + 2)) * (*(m2_ptr + 2 * n));
+//                *(result_ptr + 3) += (*(m1_ptr + 3)) * (*(m2_ptr + 3 * n));
+//                *(result_ptr + 4) += (*(m1_ptr + 4)) * (*(m2_ptr + 4 * n));
+//                *(result_ptr + 5) += (*(m1_ptr + 5)) * (*(m2_ptr + 5 * n));
+//                *(result_ptr + 6) += (*(m1_ptr + 6)) * (*(m2_ptr + 6 * n));
+//                *(result_ptr + 7) += (*(m1_ptr + 7)) * (*(m2_ptr + 7 * n));
+//
+//                // Move the pointers
+//                m1_ptr += 8;
+//                m2_ptr += 8 * n;
+//                result_ptr += 8;
+//            }
+//        }
+//    }
+//}
